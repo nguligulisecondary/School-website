@@ -172,5 +172,40 @@ const db = getFirestore(app);
 
 console.log("Firebase Connected Successfully");
 </script>
+    <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB5pA1OaClbgBvZrBF5nBxBc-7PUiVHdEE",
+  authDomain: "nguligulischool.firebaseapp.com",
+  projectId: "nguligulischool",
+  storageBucket: "nguligulischool.appspot.com",
+  messagingSenderId: "628964333987",
+  appId: "1:628964333987:web:5f8b148e0e6433cc396216"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+async function loadNews(){
+  const querySnapshot = await getDocs(collection(db, "news"));
+  let newsHTML = "";
+
+  querySnapshot.forEach((doc) => {
+    const data = doc.data();
+    newsHTML += `
+      <div style="background:white;padding:15px;margin:10px;border-radius:10px;">
+        <h3>${data.title}</h3>
+        <p>${data.message}</p>
+      </div>
+    `;
+  });
+
+  document.getElementById("newsSection").innerHTML = newsHTML;
+}
+
+loadNews();
+</script>
 </body>
 </html>
