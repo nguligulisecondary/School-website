@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard</title>
+</head>
+
+<body>
+
+<h2>Add News</h2>
+
+<input type="text" id="newsTitle" placeholder="News Title"><br><br>
+<textarea id="newsMessage" placeholder="News Message"></textarea><br><br>
+<button onclick="addNews()">Post News</button>
+
+<hr>
+
+<h2>Add Results + PDF</h2>
+
+<input type="text" id="studentName" placeholder="Student Name"><br><br>
+<input type="text" id="studentClass" placeholder="Class"><br><br>
+<input type="number" id="marks" placeholder="Marks"><br><br>
+<input type="number" id="average" placeholder="Average"><br><br>
+<input type="number" id="position" placeholder="Position"><br><br>
+
+<input type="file" id="pdfFile" accept="application/pdf"><br><br>
+
+<button onclick="addResult()">Save Result</button>
+
+<p id="msg"></p>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-storage.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB5pA1OaClbgBvZrBF5nBxBc-7PUiVHdEE",
+  authDomain: "nguligulischool.firebaseapp.com",
+  projectId: "nguligulischool",
+  storageBucket: "nguligulischool.appspot.com",
+  messagingSenderId: "628964333987",
+  appId: "1:628964333987:web:5f8b148e0e6433cc396216"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+// ADD NEWS
+window.addNews = async function(){
+  await addDoc(collection(db, "news"), {
+    title: document.getElementById("newsTitle").value,
+    message: document.getElementById("newsMessage").value,
+    date: new Date()
+  });
+  alert("News Posted!");
+}
+
+// ADD RESULT WITH PDF
+window.addResult = async function(){
+
+  const file = document.getElementById("pdfFile").files[0];
+  let pdfURL = "";
+
+  if(file){
+    const storageRef = ref(storage, "results/" + file.name);
+    await uploadBytes(storageRef, file);
+    pdfURL = await getDownloadURL(storageRef);
+  }
+
+  await addDoc(collection(db, "results"), {
+    name: document.getElementById("studentName").value,
+    class: document.getElementById("studentClass").value,
+    marks: Number(document.getElementById("marks").value),
+    average: Number(document.getElementById("average").value),
+    position: Number(document.getElementById("position").value),
+    pdfUrl: pdfURL,
+    date: new Date()
+  });
+
+  alert("Result Saved!");
+}
+
+</script>
+
+</body>
+</html>
