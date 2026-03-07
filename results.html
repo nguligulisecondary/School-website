@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nguliguli Secondary School - Results</title>
+<title>Matokeo - Nguliguli Secondary School</title>
 
 <style>
 
@@ -50,12 +50,6 @@ margin:8px 0;
 border-radius:6px;
 }
 
-a{
-text-decoration:none;
-color:#1b5e20;
-font-weight:bold;
-}
-
 .back{
 display:block;
 margin-top:20px;
@@ -65,10 +59,29 @@ text-align:center;
 .pdf{
 background:#1b5e20;
 color:white;
-padding:5px 10px;
+padding:6px 12px;
 border-radius:5px;
 display:inline-block;
 margin-top:5px;
+text-decoration:none;
+}
+
+.necta-link{
+display:block;
+margin-bottom:15px;
+background:#1565c0;
+color:white;
+padding:10px;
+text-align:center;
+border-radius:6px;
+text-decoration:none;
+}
+
+.pdf-section{
+margin-top:20px;
+padding:15px;
+background:#eef5ee;
+border-radius:8px;
 }
 
 </style>
@@ -83,36 +96,38 @@ margin-top:5px;
 <div class="container">
 
 <button onclick="toggle('nectaSection')">
-NECTA RESULTS
+MATOKEO YA NECTA
 </button>
 
 <div id="nectaSection" class="section">
 
-<p>
-🔗 Official NECTA Results:
-<br>
-<a href="https://www.necta.go.tz/results/" target="_blank">
-Open NECTA Website
+<a class="necta-link" href="https://matokeo.necta.go.tz/" target="_blank">
+ANGALIA MATOKEO YA NECTA
 </a>
-</p>
-
-<div id="nectaResults"></div>
 
 </div>
 
 
 <button onclick="toggle('internalSection')">
-INTERNAL RESULTS
+MATOKEO YA NDANI
 </button>
 
 <div id="internalSection" class="section">
 
 <div id="internalResults"></div>
 
+<div class="pdf-section">
+
+<h3>📄 PAKUA MATOKEO YA MTIHANI (PDF)</h3>
+
+<div id="examPdf"></div>
+
+</div>
+
 </div>
 
 <div class="back">
-<a href="index.html">⬅ Back Home</a>
+<a href="index.html">⬅ Back</a>
 </div>
 
 </div>
@@ -139,24 +154,21 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 
-function loadResults(collectionName, elementId){
+function loadInternalResults(){
 
-const q = query(
-collection(db, collectionName),
-orderBy("position","asc")
-);
+const q=query(collection(db,"internalResults"),orderBy("position","asc"));
 
 onSnapshot(q,(snapshot)=>{
 
 let html="";
 
 if(snapshot.empty){
-html="<p><b>No results posted yet</b></p>";
+html="<p><b>Hakuna matokeo yaliyopostiwa bado</b></p>";
 }
 
 snapshot.forEach((doc)=>{
 
-const data = doc.data();
+const data=doc.data();
 
 html+=`
 
@@ -164,11 +176,9 @@ html+=`
 
 <b>${data.position}. ${data.name}</b><br>
 
-Class: ${data.class}<br>
-Marks: ${data.marks}<br>
-Average: ${data.average}<br>
-
-${data.pdf ? `<a class="pdf" href="${data.pdf}" target="_blank">Download PDF</a>` : ""}
+Darasa: ${data.class}<br>
+Alama: ${data.marks}<br>
+Wastani: ${data.average}
 
 </div>
 
@@ -176,14 +186,46 @@ ${data.pdf ? `<a class="pdf" href="${data.pdf}" target="_blank">Download PDF</a>
 
 });
 
-document.getElementById(elementId).innerHTML=html;
+document.getElementById("internalResults").innerHTML=html;
 
 });
 
 }
 
-loadResults("nectaResults","nectaResults");
-loadResults("internalResults","internalResults");
+loadInternalResults();
+
+
+
+function loadPdf(){
+
+const q=query(collection(db,"examPDF"));
+
+onSnapshot(q,(snapshot)=>{
+
+let html="";
+
+snapshot.forEach((doc)=>{
+
+const data=doc.data();
+
+html+=`
+
+<a class="pdf" href="${data.link}" target="_blank">
+Pakua ${data.name}
+</a><br>
+
+`;
+
+});
+
+document.getElementById("examPdf").innerHTML=html;
+
+});
+
+}
+
+loadPdf();
+
 
 window.toggle=function(id){
 
